@@ -1,6 +1,12 @@
-## Install websocket API
+# Installing nodejs
 ```sh
-npm install websocket 
+sudo apt install nodejs
+```
+
+## Install packages
+```sh
+npm install websocket
+npm install express
 ```  
 
 ## To run the code 
