@@ -1,0 +1,99 @@
+html, body {
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+}
+
+.content {
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+}
+
+#status {
+    padding: 7px 0 7px 0;
+    position: absolute;
+    height: 35px;
+    width: 50%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    border-radius: 0 0 15px 15px;
+    background-color: black;
+    color: white;
+    text-align: center;
+}
+
+.left {
+    height: 100%;
+    width: 50%;
+    justify-content: center;
+    align-items: center;
+    display: flex;  
+    background-color: antiquewhite;
+}
+
+.gameContent {
+    height: 50%;
+    width: 50%;
+    border-radius: 5%;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    background-color: aquamarine;
+}
+
+#controls {
+    width: 80%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#gameInfo {
+    text-align: center;
+}
+
+.gameControls {
+    width: 100%;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input {
+    height: 20px;
+    width: 90%;
+    border: none;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+}
+
+button {
+    height: 25px;
+    width: 70%;
+    border: none;
+    border-radius: 10px;
+    background-color: black;
+    color: white;
+}
+
+#messages {
+    margin-top: 10px;
+    max-height: 250px;
+    overflow-y: auto;
+    text-align: center;
+}
+
+.right {
+    height: 100%;
+    width: 50%;
+    background-color: aquamarine;
+}
