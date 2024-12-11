@@ -71,6 +71,8 @@ wsServer.on("request", request => {
                 "clients": [{ clientId: clientId }]
             };
 
+            console.log(`O número gerado foi ${games[gameId].secretNumber}`);
+
             const payLoad = {
                 "method": "create",
                 "game": {
@@ -119,7 +121,7 @@ wsServer.on("request", request => {
                 "method": "updatePlayers",
                 "msg": `O jogador ${clientId} entrou no jogo! Agora há ${game.clients.length} jogadores`,
                 "players": game.clients.map(c => c.clientId)
-            });
+            }, clientId);
 
         } else if (result.method === "guess") {
             // O cliente faz um palpite
@@ -139,14 +141,23 @@ wsServer.on("request", request => {
 
             // Verifica palpite
             if (guess === game.secretNumber) {
-                // Acertou!
+                // * rever payLoad ?
                 const payLoad = {
                     "method": "result",
                     "winner": clientId,
                     "secretNumber": game.secretNumber,
-                    "msg": `O jogador ${clientId} acertou o numero! O número era ${game.secretNumber}.`
+                    "msg": `Ganhaste o jogo. O número era ${game.secretNumber}.`
                 };
-                broadcastToGame(gameId, payLoad);
+
+                clients[clientId].connection.send(JSON.stringify(payLoad));
+
+                broadcastToGame(gameId, {
+                    "method": "result",
+                    "winner": clientId,
+                    "secretNumber": game.secretNumber,
+                    "msg": `O jogador ${clientId} acertou o número! O número era ${game.secretNumber}.`
+                }, clientId);
+
                 delete games[gameId]; //ends the game 
             } else if (guess < game.secretNumber) {
                 const payLoad = {
@@ -166,11 +177,11 @@ wsServer.on("request", request => {
 });
 
 
-function broadcastToGame(gameId, messageObject) {
+function broadcastToGame(gameId, messageObject, clientId) {
     const game = games[gameId];
     if (!game) return;
     const message = JSON.stringify(messageObject);
-    game.clients.forEach(c => {
+    game.clients.filter(id => id.clientId !== clientId).forEach(c => {
         if (clients[c.clientId]) {
             clients[c.clientId].connection.send(message);
         }

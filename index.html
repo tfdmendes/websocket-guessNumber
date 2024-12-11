@@ -15,7 +15,9 @@
                     <div class="gameControls">
                         <input type="number" id="guessInput" placeholder="Palpite" />
                         <button id="guessButton">Enviar Palpite</button>
+                        <button id="restart">Voltar a Jogar</button>
                     </div>
+                    <div id="messages"></div>
                 </div>
                 <div id="controls">
                     <button id="createGame">Criar Jogo</button>
@@ -23,7 +25,6 @@
                     <input type="text" id="gameIdInput" placeholder="ID do Jogo" />
                     <button id="joinGame">Entrar no Jogo</button>
                 </div>
-                <div id="messages"></div>
             </div>
         </div>
         <div class="right"></div>
@@ -48,10 +49,14 @@
                 gameId = response.game.id;
                 document.getElementById('gameInfo').innerText = `Jogo criado com ID\n${gameId}`;
                 document.getElementById('gameArea').style.display = 'block';
+                const msg = response.game.msg;
+                addMessage(msg);
             } else if (response.method === 'join') {
                 gameId = response.game.id;
                 document.getElementById('gameInfo').innerText = `Entraste no jogo ${gameId}.`;
                 document.getElementById('gameArea').style.display = 'block';
+                const msg = response.game.msg;
+                addMessage(msg);
             } else if (response.method === 'updatePlayers') {
                 const msg = response.msg;
                 addMessage(msg);
@@ -59,7 +64,9 @@
                 addMessage(response.msg);
             } else if (response.method === 'result') {
                 addMessage(response.msg);
-                // Opcional: encerrar o jogo ou reiniciar
+                document.getElementById("restart").style.display = "block";
+                document.getElementById("messages").style.maxHeight = "190px";
+                document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
             } else if (response.method === 'error') {
                 addMessage('Erro: ' + response.message);
             }
@@ -120,7 +127,11 @@
             document.getElementById("guessInput").value = ''; // clears the line
         }
 
-
+        document.getElementById('restart').addEventListener('click', () => {
+            document.getElementById("gameArea").style.display = "none";
+            document.getElementById("controls").style.display = "flex";
+            document.getElementById("messages").innerHTML = "ifc";
+        });
 
         function addMessage(msg) {
             const messagesDiv = document.getElementById('messages');
