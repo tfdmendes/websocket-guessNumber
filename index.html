@@ -1,26 +1,121 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Jogo de Adivinhar Números</title>
 </head>
 <body>
-    
-    <h1>Guessing the Number game</h1>
+    <h1>Jogo de Adivinhar Números</h1>
+    <div id="status"></div>
+    <div id="gameArea" style="display: none;">
+        <p id="gameInfo"></p>
+        <input type="number" id="guessInput" placeholder="Palpite" />
+        <button id="guessButton">Enviar Palpite</button>
+    </div>
+    <div id="controls">
+        <button id="createGame">Criar Jogo</button>
+        <input type="text" id="gameIdInput" placeholder="ID do Jogo" />
+        <button id="joinGame">Entrar no Jogo</button>
+    </div>
+    <div id="messages"></div>
 
-    <!-- As soon as we open the browser we'll connect  -->
-    <!-- !BAD IDEA BUT WHO CARES -->
 
+    <!-- As soon as the page opens it directly connects -->
     <script>
-        let ws  = new WebSocket("ws://localhost:9090")
+        let clientId = null;
+        let gameId = null;
+        let ws = new WebSocket('ws://localhost:9090');  
+
         ws.onmessage = message => {
-            // message.data 
             const response = JSON.parse(message.data);
-            console.log(response);
+            console.log('Recebido do servidor:', response);
+
+            if (response.method === 'connect') {
+                clientId = response.clientId;
+                //console.log("Client id set successfully" + clientId);
+                document.getElementById('status').innerText += ` O teu ID é ${clientId}`;
+            } else if (response.method === 'create') {
+                gameId = response.game.id;
+                document.getElementById('gameInfo').innerText = `Jogo criado com ID: ${gameId}`;
+                document.getElementById('gameArea').style.display = 'block';
+            } else if (response.method === 'join') {
+                gameId = response.game.id;
+                document.getElementById('gameInfo').innerText = `Entraste no jogo ${gameId}.`;
+                document.getElementById('gameArea').style.display = 'block';
+            } else if (response.method === 'updatePlayers') {
+                const msg = response.msg;
+                addMessage(msg);
+            } else if (response.method === 'hint') {
+                addMessage(response.msg);
+            } else if (response.method === 'result') {
+                addMessage(response.msg);
+                // Opcional: encerrar o jogo ou reiniciar
+            } else if (response.method === 'error') {
+                addMessage('Erro: ' + response.message);
+            }
+        };
+
+        ws.onerror = error => {
+            console.error('WebSocket error:', error);
+        };
+
+        document.getElementById('createGame').addEventListener('click', () => {
+            const payLoad = {
+                method: 'create',
+                clientId: clientId
+            };
+            ws.send(JSON.stringify(payLoad));
+        });
+
+        document.getElementById('joinGame').addEventListener('click', () => {
+            const joinGameId = document.getElementById('gameIdInput').value;
+            if (joinGameId === '') {
+                alert('Insere um ID de jogo para entrar');
+                return;
+            }
+            const payLoad = {
+                method: 'join',
+                clientId: clientId,
+                gameId: joinGameId
+            };
+            ws.send(JSON.stringify(payLoad));
+        });
+
+        document.getElementById('guessButton').addEventListener('click', () => {
+            sendGuess();
+        });
+
+        document.getElementById('guessInput').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter'){
+                sendGuess();
+            }
+        });
+
+        function sendGuess(){
+            const guess = parseInt(document.getElementById('guessInput').value, 10);
+            if (isNaN(guess)){
+                alert("Insere um número válido");
+                return;
+            }
+            
+            const payLoad = {
+                method: "guess",
+                clientId: clientId,
+                gameId: gameId,
+                number: guess
+            };
+            ws.send(JSON.stringify(payLoad));
+            document.getElementById("guessInput").value = ''; // clears the line
         }
+
+
+
+        function addMessage(msg) {
+            const messagesDiv = document.getElementById('messages');
+            const newMsg = document.createElement('p');
+            newMsg.innerText = msg;
+            messagesDiv.appendChild(newMsg);
+        }
+
     </script>
-
-
 </body>
 </html>
