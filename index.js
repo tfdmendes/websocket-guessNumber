@@ -1,7 +1,8 @@
 const http = require("http");
-const app = require("express")();
+const express = require("express");
+const app = express();
 
-//sends the archive "index.html" to whoever accesses http://localhost:9091/
+app.use(express.static(__dirname));
 app.get("/", (req, res) => res.sendFile(__dirname + "/index.html"));
 // port that will host the page; And the HTML page has code that connects
 // to port 9090 (where the websocket is hosted)
