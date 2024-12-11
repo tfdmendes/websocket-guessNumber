@@ -17,8 +17,8 @@
                         <button id="guessButton">Enviar Palpite</button>
                         <button id="restart">Voltar a Jogar</button>
                     </div>
-                    <div id="messages"></div>
                 </div>
+                <div id="messages"></div>
                 <div id="controls">
                     <button id="createGame">Criar Jogo</button>
                     <p>OU</p>
@@ -68,6 +68,7 @@
                 document.getElementById("messages").style.maxHeight = "190px";
                 document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
             } else if (response.method === 'error') {
+                document.getElementById("controls").style.display = "flex";
                 addMessage('Erro: ' + response.message);
             }
         };
@@ -130,7 +131,8 @@
         document.getElementById('restart').addEventListener('click', () => {
             document.getElementById("gameArea").style.display = "none";
             document.getElementById("controls").style.display = "flex";
-            document.getElementById("messages").innerHTML = "ifc";
+            document.getElementById("messages").innerHTML = "";
+            document.getElementById("messages").style.maxHeight = "250px";
         });
 
         function addMessage(msg) {

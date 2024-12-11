@@ -36,6 +36,7 @@ html, body {
 }
 
 .gameContent {
+    text-align: center;
     height: 50%;
     width: 50%;
     border-radius: 5%;
