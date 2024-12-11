@@ -1,22 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" href="style.css">
     <title>Jogo de Adivinhar Números</title>
 </head>
 <body>
-    <h1>Jogo de Adivinhar Números</h1>
-    <div id="status"></div>
-    <div id="gameArea" style="display: none;">
-        <p id="gameInfo"></p>
-        <input type="number" id="guessInput" placeholder="Palpite" />
-        <button id="guessButton">Enviar Palpite</button>
+    <div class="content">
+        <div id="status"></div>
+        <div class="left">
+            <div class="gameContent">
+                <h1>Jogo de Adivinhar Números</h1>
+                <div id="gameArea" style="display: none;">
+                    <p id="gameInfo"></p>
+                    <div class="gameControls">
+                        <input type="number" id="guessInput" placeholder="Palpite" />
+                        <button id="guessButton">Enviar Palpite</button>
+                    </div>
+                </div>
+                <div id="controls">
+                    <button id="createGame">Criar Jogo</button>
+                    <p>OU</p>
+                    <input type="text" id="gameIdInput" placeholder="ID do Jogo" />
+                    <button id="joinGame">Entrar no Jogo</button>
+                </div>
+                <div id="messages"></div>
+            </div>
+        </div>
+        <div class="right"></div>
     </div>
-    <div id="controls">
-        <button id="createGame">Criar Jogo</button>
-        <input type="text" id="gameIdInput" placeholder="ID do Jogo" />
-        <button id="joinGame">Entrar no Jogo</button>
-    </div>
-    <div id="messages"></div>
 
 
     <!-- As soon as the page opens it directly connects -->
@@ -32,10 +43,10 @@
             if (response.method === 'connect') {
                 clientId = response.clientId;
                 //console.log("Client id set successfully" + clientId);
-                document.getElementById('status').innerText += ` O teu ID é ${clientId}`;
+                document.getElementById('status').innerText += `O teu ID\n${clientId}`;
             } else if (response.method === 'create') {
                 gameId = response.game.id;
-                document.getElementById('gameInfo').innerText = `Jogo criado com ID: ${gameId}`;
+                document.getElementById('gameInfo').innerText = `Jogo criado com ID\n${gameId}`;
                 document.getElementById('gameArea').style.display = 'block';
             } else if (response.method === 'join') {
                 gameId = response.game.id;
@@ -63,6 +74,7 @@
                 method: 'create',
                 clientId: clientId
             };
+            document.getElementById("controls").style.display = "none";
             ws.send(JSON.stringify(payLoad));
         });
 
@@ -77,6 +89,7 @@
                 clientId: clientId,
                 gameId: joinGameId
             };
+            document.getElementById("controls").style.display = "none";
             ws.send(JSON.stringify(payLoad));
         });
 
@@ -114,6 +127,7 @@
             const newMsg = document.createElement('p');
             newMsg.innerText = msg;
             messagesDiv.appendChild(newMsg);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
     </script>

@@ -67,7 +67,7 @@ wsServer.on("request", request => {
             games[gameId] = {
                 "id": gameId,
                 "secretNumber": Math.floor(Math.random() * 100) + 1,
-                "clients": []
+                "clients": [{ clientId: clientId }]
             };
 
             const payLoad = {
@@ -110,12 +110,13 @@ wsServer.on("request", request => {
             };
 
             // notifies that the client joined 
+            
             clients[clientId].connection.send(JSON.stringify(payLoad));
 
             // broadcast to every1 that a new player joined 
             broadcastToGame(gameId, {
                 "method": "updatePlayers",
-                "msg": 'O jogador ${clientId} entrou no jogo! Agora há ${game.clients.length} jogadores',
+                "msg": `O jogador ${clientId} entrou no jogo! Agora há ${game.clients.length} jogadores`,
                 "players": game.clients.map(c => c.clientId)
             });
 
@@ -149,13 +150,13 @@ wsServer.on("request", request => {
             } else if (guess < game.secretNumber) {
                 const payLoad = {
                     "method": "hint",
-                    "msg": "O número é maior!"
+                    "msg": `${guess} é baixo, o número é maior!`
                 };
                 clients[clientId].connection.send(JSON.stringify(payLoad));
             } else {
                 const payLoad = {
                     "method": "hint",
-                    "msg": "O número é menor!"
+                    "msg": `${guess} é alto, o número é menor!`
                 };
                 clients[clientId].connection.send(JSON.stringify(payLoad));
             }
