@@ -1,8 +1,24 @@
+@font-face {
+    font-family: 'Roboto';
+    src: url('../fonts/Roboto-Regular.woff2') format('woff2'),
+         url('../fonts/Roboto-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    font-family: 'Roboto', sans-serif;
+}
+
 html, body {
     height: 100vh;
     width: 100vw;
     margin: 0;
     padding: 0;
+}
+
+h1 {
+    font-size: 22pt;
 }
 
 .content {
@@ -32,18 +48,19 @@ html, body {
     justify-content: center;
     align-items: center;
     display: flex;  
-    background-color: antiquewhite;
+    background-color: rgb(64, 67, 66);
 }
 
 .gameContent {
+    z-index: 1;
     text-align: center;
-    height: 50%;
+    height: 468px;
     width: 50%;
     border-radius: 5%;
     align-items: center;
     display: flex;
     flex-direction: column;
-    background-color: aquamarine;
+    background-color: white;
     box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.3);
     min-width: 250px;
 }
@@ -74,12 +91,21 @@ html, body {
     gap: 10px;
 }
 
+
 input {
     height: 20px;
     width: 90%;
     border: none;
     border-radius: 6px;
     text-align: center;
+}
+
+#controls input {
+    border: 1px solid black;
+}
+
+.gameControls input {
+    border: 1px solid black;
 }
 
 button {
@@ -90,6 +116,7 @@ button {
     background-color: black;
     color: white;
     cursor: pointer;
+    font-size: 9pt;
 }
 
 #restart {
@@ -108,7 +135,57 @@ button {
 .right {
     height: 100%;
     width: 50%;
-    background-color: aquamarine;
+    justify-content: center;
+    align-items: center;
+    display: flex;  
+    background-color: white;
+}
+
+#chatArea {
+    z-index: 1;
+    text-align: center;
+    height: 468px;
+    width: 50%;
+    border-radius: 5%;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(64, 67, 66);
+    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.3);
+    min-width: 250px;
+}
+
+#chatArea h2 {
+    color: white;
+}
+
+#chatMessages {
+    height: 65%;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    padding: 0 10px 0 10px;
+    border:1px solid #ccc;
+    border-radius: 15px;
+    overflow-y: auto;
+    text-align: start;
+    margin-bottom:10px;
+}
+
+.me {
+    align-self: flex-end;
+    text-align: left;
+    word-wrap: break-word;
+    margin: 5px 0;
+}
+
+
+.chatControles {
+    width: 100%;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 @media screen and (max-width: 1536px) {

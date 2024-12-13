@@ -91,7 +91,7 @@ wsServer.on("request", request => {
                 "message": result.text
             };
 
-            broadCastMessage(payLoad);
+            broadCastMessage(payLoad, result.clientId);
 
 
         } else if (result.method === "join") {
@@ -198,10 +198,10 @@ function broadcastToGame(gameId, messageObject, clientId) {
     });
 }
 
-function broadCastMessage(messageObject) {
+function broadCastMessage(messageObject, clientId) {
     const message = JSON.stringify(messageObject);
     for (const cId in clients) {
-        if (clients[cId]) {
+        if (clients[cId] && cId !== clientId) {
             clients[cId].connection.send(message);
         }
     }

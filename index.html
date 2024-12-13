@@ -36,12 +36,13 @@
         </div>
         <div class="right">
             
-            <div id="chatArea" style="display:block;">
+            <div id="chatArea">
                 <h2>Chat Global</h2>
-                <div id="chatMessages" style="border:1px solid #ccc; height:100px; overflow:auto; margin-bottom:10px;">
+                <div id="chatMessages"></div>
+                <div class="chatControles">
+                    <input type="text" id="chatInput" placeholder="Escreve a tua mensagem" />
+                    <button id="sendChat">Enviar</button>
                 </div>
-                <input type="text" id="chatInput" placeholder="Escreve tua mensagem" />
-                <button id="sendChat">Enviar</button>
             </div>
 
         </div>
@@ -166,6 +167,7 @@
 
         function sendChatMessage() {
             const text = document.getElementById('chatInput').value.trim();
+            addChatMessage(text, "me");
             if (!text) return;
             const payLoad = {
                 method: 'chat',
@@ -193,9 +195,13 @@
             document.getElementById("guessInput").value = ''; // clears the line
         }
 
-        function addChatMessage(msg) {
+        function addChatMessage(msg, meOrOther) {
             const chatMessagesDiv = document.getElementById('chatMessages');
             const newMsg = document.createElement('p');
+            newMsg.style.color = "white";
+            if (meOrOther === "me") {
+                newMsg.classList.add("me");
+            }
             newMsg.innerText = msg;
             chatMessagesDiv.appendChild(newMsg);
             chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
