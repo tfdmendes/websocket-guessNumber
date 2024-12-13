@@ -59,7 +59,6 @@ wsServer.on("request", request => {
         const result = JSON.parse(message.utf8Data);
         // console.log(result)
 
-
         if (result.method === "create") {
             const clientId = result.clientId;
             const gameId = guid();
@@ -71,18 +70,29 @@ wsServer.on("request", request => {
                 "clients": [{ clientId: clientId }]
             };
 
-            console.log(`O número gerado foi ${games[gameId].secretNumber}`);
+            console.log(`Number generated: ${games[gameId].secretNumber}`);
 
             const payLoad = {
                 "method": "create",
                 "game": {
                     "id": gameId,
-                    "msg": "Jogo criado! Compartilhe o gameId para outros jogadores entrarem."
+                    "msg": "Jogo criado! Compartilha o gameId para outros jogadores entrarem."
                 }
             };
 
             const con = clients[clientId].connection;
             con.send(JSON.stringify(payLoad));
+
+        } else if (result.method === "chat") {
+
+            const payLoad = {
+                "method": "chat",
+                "clientId": result.clientId,
+                "message": result.text
+            };
+
+            broadCastMessage(payLoad);
+
 
         } else if (result.method === "join") {
             const clientId = result.clientId;
@@ -139,7 +149,7 @@ wsServer.on("request", request => {
                 return;
             }
 
-            // Verifica palpite
+            // Checking if the guess matches the secret number 
             if (guess === game.secretNumber) {
                 // * rever payLoad ?
                 const payLoad = {
@@ -187,6 +197,16 @@ function broadcastToGame(gameId, messageObject, clientId) {
         }
     });
 }
+
+function broadCastMessage(messageObject) {
+    const message = JSON.stringify(messageObject);
+    for (const cId in clients) {
+        if (clients[cId]) {
+            clients[cId].connection.send(message);
+        }
+    }
+}
+
 
 //* https://stackoverflow.com/posts/44996682/revisions
 function S4() {
