@@ -75,6 +75,11 @@
                 document.getElementById("error").innerHTML = "";
                 document.getElementById('gameInfo').innerText = `Jogo criado com ID\n${gameId}`;
                 document.getElementById('gameArea').style.display = 'block';
+                if (window.innerWidth <= 1536) {
+                    document.getElementById("messages").style.maxHeight = "200px";
+                } else {
+                    document.getElementById("messages").style.maxHeight = "225px";
+                }
                 const msg = response.game.msg;
                 addMessage(msg);
 
@@ -84,6 +89,11 @@
                 document.getElementById("error").innerHTML = "";
                 document.getElementById('gameInfo').innerText = `Entraste no jogo ${gameId}.`;
                 document.getElementById('gameArea').style.display = 'block';
+                if (window.innerWidth <= 1536) {
+                    document.getElementById("messages").style.maxHeight = "200px";
+                } else {
+                    document.getElementById("messages").style.maxHeight = "225px";
+                }
                 const msg = response.game.msg;
                 addMessage(msg);
 
@@ -103,12 +113,10 @@
                 updateAttempts(response.attempts);
                 document.getElementById("restart").style.display = "block";
                 messages = document.getElementById("messages");
-                if (window.innerWidth <= 1007) {
-                    messages.style.maxHeight = "85px";
-                } else if (window.innerWidth <= 1536) {
-                    messages.style.maxHeight = "150px";
+                if (window.innerWidth <= 1536) {
+                    messages.style.maxHeight = "120px";
                 } else {
-                    messages.style.maxHeight = "190px";
+                    messages.style.maxHeight = "160px";
                 }
                 document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
 
@@ -195,6 +203,7 @@
             document.getElementById("controls").style.display = "flex";
             document.getElementById("messages").innerHTML = "";
             document.getElementById("restart").style.display = "none";
+            document.getElementById("attemptsInfo").innerText = "Tentativas: 0";
         });
 
 

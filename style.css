@@ -110,12 +110,11 @@ button {
 #restart {
     display: none;
     position: relative;
-    top: 220px;
+    top: 190px;
 }
 
 #messages {
     margin-top: 10px;
-    max-height: 250px;
     overflow-y: auto;
     text-align: center;
 }
@@ -177,21 +176,7 @@ button {
 }
 
 @media screen and (max-width: 1536px) {
-    #messages {
-        max-height: 200px;
-    }
-
     #restart {
-        top: 180px;
-    }
-}
-
-@media screen and (max-width: 1007px) {
-    #messages {
-        max-height: 155px;
-    }
-
-    #restart {
-        top: 125px;
+        top: 150px;
     }
 }
