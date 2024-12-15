@@ -111,6 +111,10 @@
             } else if (response.method === 'result') {
                 addMessage(response.msg);
                 updateAttempts(response.attempts);
+
+                document.getElementById("guessButton").disabled = true;
+                document.getElementById("guessInput").disabled = true;
+
                 document.getElementById("restart").style.display = "block";
                 messages = document.getElementById("messages");
                 if (window.innerWidth <= 1536) {
@@ -204,6 +208,15 @@
             document.getElementById("messages").innerHTML = "";
             document.getElementById("restart").style.display = "none";
             document.getElementById("attemptsInfo").innerText = "Tentativas: 0";
+
+            document.getElementById("guessButton").disabled = false;
+            document.getElementById("guessInput").disabled = false;
+
+            gameId = null;
+
+            document.getElementById("restart").style.display = "none";
+
+
         });
 
 
