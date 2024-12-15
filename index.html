@@ -2,7 +2,7 @@
 <html>
 <head>
     <link rel="stylesheet" href="style.css">
-    <title>Jogo de Adivinhar Números</title>
+    <title>Jogo de Adivinhar Numeros</title>
 </head>
 <body>
     <div class="content">
@@ -10,10 +10,10 @@
         <div class="left">
             <div class="gameContent">
 
-
-                <h1>Jogo de Adivinhar Números</h1>
+                <h1>Jogo de Adivinhar Numeros</h1>
                 <div id="gameArea" style="display: none;">
                     <p id="gameInfo"></p>
+                    <p id="attemptsInfo">Tentativas: 0</p>
                     <div class="gameControls">
                         <input type="number" id="guessInput" placeholder="Palpite" />
                         <button id="guessButton">Enviar Palpite</button>
@@ -53,17 +53,23 @@
     <script>
         let clientId = null;
         let gameId = null;
-        // Establishing a connection with the websocket server 
+
+        // Establishing a connection with the WebSocket server 
         let ws = new WebSocket('ws://localhost:9090');  
 
+
+        //  ALL TYPES OF RESPONSE METHODS RECEIVED FROM THE SERVER
         ws.onmessage = message => {
-            const response = JSON.parse(message.data);
+            const response = JSON.parse(message.data); // Response from the websocket server
             console.log('Recebido do servidor:', response);
 
+            // Handling different types of of messages based on the method
             if (response.method === 'connect') {
                 clientId = response.clientId;
                 //console.log("Client id set successfully" + clientId);
                 document.getElementById('status').innerText += `O teu ID\n${clientId}`;
+
+
             } else if (response.method === 'create') {
                 gameId = response.game.id;
                 document.getElementById("error").innerHTML = "";
@@ -71,6 +77,8 @@
                 document.getElementById('gameArea').style.display = 'block';
                 const msg = response.game.msg;
                 addMessage(msg);
+
+
             } else if (response.method === 'join') {
                 gameId = response.game.id;
                 document.getElementById("error").innerHTML = "";
@@ -78,11 +86,17 @@
                 document.getElementById('gameArea').style.display = 'block';
                 const msg = response.game.msg;
                 addMessage(msg);
+
+
             } else if (response.method === 'updatePlayers') {
                 const msg = response.msg;
                 addMessage(msg);
+
+
             } else if (response.method === 'hint') {
                 addMessage(response.msg);
+
+
             } else if (response.method === 'result') {
                 addMessage(response.msg);
                 document.getElementById("restart").style.display = "block";
@@ -95,9 +109,13 @@
                     messages.style.maxHeight = "190px";
                 }
                 document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+
+
             } else if (response.method === 'error') {
                 document.getElementById("controls").style.display = "flex";
                 addError(response.message);
+
+
             } else if (response.method === 'chat') {
                 const fromClient = response.clientId;
                 const msgText = response.message;
@@ -109,6 +127,16 @@
             console.error('WebSocket error:', error);
         };
 
+
+
+        
+
+        //
+        //! INFO SENT TO THE WEBSOCKET SERVER BASED ON THE DIFFERENT ACTIONS
+        //
+
+
+        // CREATE GAME 
         document.getElementById('createGame').addEventListener('click', () => {
             const payLoad = {
                 method: 'create',
@@ -118,6 +146,8 @@
             ws.send(JSON.stringify(payLoad));
         });
 
+
+        // JOIN GAME 
         document.getElementById('joinGame').addEventListener('click', () => {
             const joinGameId = document.getElementById('gameIdInput').value;
             if (joinGameId === '') {
@@ -134,20 +164,22 @@
             document.getElementById('gameIdInput').value = "";
         });
 
+
+        // SENDING A GUESS
         document.getElementById('guessButton').addEventListener('click', () => {
             sendGuess();
         });
-
         document.getElementById('guessInput').addEventListener('keydown', (event) => {
             if (event.key === 'Enter'){
                 sendGuess();
             }
         });
         
+
+        // SEND MESSAGE TO CHAT 
         document.getElementById('sendChat').addEventListener('click', () => {
             sendChatMessage();
         });
-
         document.getElementById('chatInput').addEventListener('keydown', (event) => {
             if (event.key === 'Enter'){
                 sendChatMessage();
@@ -155,6 +187,7 @@
         });
 
 
+        // RESTART
         document.getElementById('restart').addEventListener('click', () => {
             document.getElementById("gameArea").style.display = "none";
             document.getElementById("controls").style.display = "flex";

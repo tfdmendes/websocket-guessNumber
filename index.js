@@ -4,8 +4,7 @@ const app = express();
 
 app.use(express.static(__dirname));
 app.get("/", (req, res) => res.sendFile(__dirname + "/index.html"));
-// port that will host the page; And the HTML page has code that connects
-// to port 9090 (where the websocket is hosted)
+
 app.listen(80, () => console.log("Listening on http port 80")); 
 
 const websocketServer = require("websocket").server;
@@ -13,10 +12,10 @@ const httpServer = http.createServer();
 // websocket traffic goes through 9090
 httpServer.listen(9090, () => console.log("Listening on websocket port 9090"));
 
-// client dictionary: { clientId: { connection } }
+// ? client dictionary: { clientId: { connection } }
 const clients = {};
 
-// game dictionary: { gameId: { id, secretNumber, clients: [{clientId}], state } }
+// ? game dictionary: { gameId: { id, secretNumber, clients: [{clientId}], state } }
 const games = {};
 
 const wsServer = new websocketServer({
@@ -25,10 +24,9 @@ const wsServer = new websocketServer({
 
 // WebSocket Server !
 wsServer.on("request", request => {
-    // accept any protocol
-    // This is the TCP connection
+    
+    // This is the TCP connection; Accepts any protocol
     const connection = request.accept(null, request.origin);
-
     const clientIp = request.socket.remoteAddress;
     const clientPort = request.socket.remotePort;
 
@@ -40,14 +38,13 @@ wsServer.on("request", request => {
         "connection": connection
     };
 
-    // send back the clientID to the client himself
+    //! send back the clientID to the client himself
     const payLoad = {
         "method": "connect",
         "clientId": clientId
     };
+    connection.send(JSON.stringify(payLoad)); //! sending back the client connect 
 
-    // sending back the client connect 
-    connection.send(JSON.stringify(payLoad));
 
     connection.on("close", () => {
         console.log(`Closed connection with: IP:${clientIp}:${clientPort}`);
@@ -55,21 +52,21 @@ wsServer.on("request", request => {
         delete clients[clientId];
     });
     
+
     connection.on("message", message => {
         const result = JSON.parse(message.utf8Data);
-        // console.log(result)
+        console.log(result)
 
         if (result.method === "create") {
             const clientId = result.clientId;
             const gameId = guid();
 
-            // creating the secret number 
             games[gameId] = {
                 "id": gameId,
                 "secretNumber": Math.floor(Math.random() * 200) + 1,
                 "clients": [{ clientId: clientId }]
             };
-
+            
             console.log(`Number generated: ${games[gameId].secretNumber}`);
 
             const payLoad = {
@@ -104,7 +101,7 @@ wsServer.on("request", request => {
                 // game doesnt exist     
                 const payLoad = {
                     "method": "error",
-                    "message": "Esse jogo não existe."
+                    "message": "Esse jogo nao existe."
                 };
                 clients[clientId].connection.send(JSON.stringify(payLoad));
                 return;
@@ -118,7 +115,7 @@ wsServer.on("request", request => {
                 "game": {
                     "id": gameId,
                     "clientsCount": game.clients.length,
-                    "msg": `Você entrou no jogo ${gameId}. Agora há ${game.clients.length} jogadores.`
+                    "msg": `Entraste no jogo ${gameId}. Agora ha ${game.clients.length} jogadores.`
                 }
             };
 
@@ -129,12 +126,12 @@ wsServer.on("request", request => {
             // broadcast to every1 that a new player joined 
             broadcastToGame(gameId, {
                 "method": "updatePlayers",
-                "msg": `O jogador ${clientId} entrou no jogo! Agora há ${game.clients.length} jogadores`,
+                "msg": `O jogador ${clientId} entrou no jogo! Agora ha ${game.clients.length} jogadores`,
                 "players": game.clients.map(c => c.clientId)
             }, clientId);
 
+
         } else if (result.method === "guess") {
-            // O cliente faz um palpite
             const clientId = result.clientId;
             const gameId = result.gameId;
             const guess = parseInt(result.number, 10);
@@ -143,7 +140,7 @@ wsServer.on("request", request => {
             if (!game) {
                 const payLoad = {
                     "method": "error",
-                    "message": "Jogo não encontrado"
+                    "message": "Jogo nao encontrado"
                 };
                 clients[clientId].connection.send(JSON.stringify(payLoad));
                 return;
@@ -156,7 +153,7 @@ wsServer.on("request", request => {
                     "method": "result",
                     "winner": clientId,
                     "secretNumber": game.secretNumber,
-                    "msg": `Ganhaste o jogo. O número era ${game.secretNumber}.`
+                    "msg": `Ganhaste o jogo. O numero era ${game.secretNumber}.`
                 };
 
                 clients[clientId].connection.send(JSON.stringify(payLoad));
@@ -165,20 +162,20 @@ wsServer.on("request", request => {
                     "method": "result",
                     "winner": clientId,
                     "secretNumber": game.secretNumber,
-                    "msg": `O jogador ${clientId} acertou o número! O número era ${game.secretNumber}.`
+                    "msg": `O jogador ${clientId} acertou o numero! O numero era ${game.secretNumber}.`
                 }, clientId);
 
                 delete games[gameId]; //ends the game 
             } else if (guess < game.secretNumber) {
                 const payLoad = {
                     "method": "hint",
-                    "msg": `${guess} é baixo, o número é maior!`
+                    "msg": `${guess} e baixo, o numero e maior!`
                 };
                 clients[clientId].connection.send(JSON.stringify(payLoad));
             } else {
                 const payLoad = {
                     "method": "hint",
-                    "msg": `${guess} é alto, o número é menor!`
+                    "msg": `${guess} e alto, o numero e menor!`
                 };
                 clients[clientId].connection.send(JSON.stringify(payLoad));
             }
