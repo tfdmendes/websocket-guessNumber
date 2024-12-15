@@ -15,7 +15,7 @@ httpServer.listen(9090, () => console.log("Listening on websocket port 9090"));
 // ? client dictionary: { clientId: { connection } }
 const clients = {};
 
-// ? game dictionary: { gameId: { id, secretNumber, clients: [{clientId}], state } }
+// ? game dictionary: { gameId: { id, secretNumber, clients: {clientId: attempts }, state } }
 const games = {};
 
 const wsServer = new websocketServer({
@@ -64,7 +64,7 @@ wsServer.on("request", request => {
             games[gameId] = {
                 "id": gameId,
                 "secretNumber": Math.floor(Math.random() * 200) + 1,
-                "clients": [{ clientId: clientId }]
+                "clients": { [clientId]: 0 }
             };
             
             console.log(`Number generated: ${games[gameId].secretNumber}`);
@@ -96,7 +96,6 @@ wsServer.on("request", request => {
             const gameId = result.gameId;
             const game = games[gameId];
 
-
             if (!game) {
                 // game doesnt exist     
                 const payLoad = {
@@ -107,27 +106,26 @@ wsServer.on("request", request => {
                 return;
             }
 
-            // adding the player to the game 
-            game.clients.push({ clientId: clientId });
+            // adding the player to the game, with attempts counter set to 0
+            game.clients[clientId] = 0;
 
             const payLoad = {
                 "method": "join",
                 "game": {
                     "id": gameId,
                     "clientsCount": game.clients.length,
-                    "msg": `Entraste no jogo ${gameId}. Agora ha ${game.clients.length} jogadores.`
+                    "msg": `Entraste no jogo ${gameId}. Agora ha ${Object.keys(game.clients).length} jogadores.`
                 }
             };
 
-            // notifies that the client joined 
-            
+            // notifies the client he joined
             clients[clientId].connection.send(JSON.stringify(payLoad));
 
             // broadcast to every1 that a new player joined 
             broadcastToGame(gameId, {
                 "method": "updatePlayers",
-                "msg": `O jogador ${clientId} entrou no jogo! Agora ha ${game.clients.length} jogadores`,
-                "players": game.clients.map(c => c.clientId)
+                "msg": `O jogador ${clientId} entrou no jogo! Agora ha ${Object.keys(game.clients).length} jogadores`,
+                "players": Object.keys(game.clients)
             }, clientId);
 
 
@@ -135,8 +133,8 @@ wsServer.on("request", request => {
             const clientId = result.clientId;
             const gameId = result.gameId;
             const guess = parseInt(result.number, 10);
-
             const game = games[gameId];
+
             if (!game) {
                 const payLoad = {
                     "method": "error",
@@ -146,14 +144,19 @@ wsServer.on("request", request => {
                 return;
             }
 
+            // Incrementing the number of attempts 
+            if (game.clients.hasOwnProperty(clientId)) {
+                game.clients[clientId] += 1;
+            } 
+
             // Checking if the guess matches the secret number 
             if (guess === game.secretNumber) {
-                // * rever payLoad ?
                 const payLoad = {
                     "method": "result",
                     "winner": clientId,
                     "secretNumber": game.secretNumber,
-                    "msg": `Ganhaste o jogo. O numero era ${game.secretNumber}.`
+                    "msg": `Ganhaste o jogo. O numero era ${game.secretNumber}.`,
+                    "attempts": game.clients[clientId]
                 };
 
                 clients[clientId].connection.send(JSON.stringify(payLoad));
@@ -162,23 +165,31 @@ wsServer.on("request", request => {
                     "method": "result",
                     "winner": clientId,
                     "secretNumber": game.secretNumber,
-                    "msg": `O jogador ${clientId} acertou o numero! O numero era ${game.secretNumber}.`
+                    "msg": `O jogador ${clientId} acertou o numero! O numero era ${game.secretNumber}.`,
+                    "attempts": game.clients[clientId]
                 }, clientId);
 
                 delete games[gameId]; //ends the game 
+
+
             } else if (guess < game.secretNumber) {
                 const payLoad = {
                     "method": "hint",
-                    "msg": `${guess} e baixo, o numero e maior!`
+                    "msg": `${guess} e baixo, o numero e maior!`,
+                    "attempts": game.clients[clientId]
                 };
                 clients[clientId].connection.send(JSON.stringify(payLoad));
             } else {
                 const payLoad = {
                     "method": "hint",
-                    "msg": `${guess} e alto, o numero e menor!`
+                    "msg": `${guess} e alto, o numero e menor!`,
+                    "attempts": game.clients[clientId]
                 };
                 clients[clientId].connection.send(JSON.stringify(payLoad));
             }
+
+
+
         }
     });
 });
@@ -188,12 +199,13 @@ function broadcastToGame(gameId, messageObject, clientId) {
     const game = games[gameId];
     if (!game) return;
     const message = JSON.stringify(messageObject);
-    game.clients.filter(id => id.clientId !== clientId).forEach(c => {
-        if (clients[c.clientId]) {
-            clients[c.clientId].connection.send(message);
+    Object.keys(game.clients).filter(id => id !== clientId).forEach(cId => {
+        if (clients[cId]) {
+            clients[cId].connection.send(message);
         }
     });
 }
+
 
 function broadCastMessage(messageObject, clientId) {
     const message = JSON.stringify(messageObject);

@@ -95,10 +95,12 @@
 
             } else if (response.method === 'hint') {
                 addMessage(response.msg);
+                updateAttempts(response.attempts);
 
 
             } else if (response.method === 'result') {
                 addMessage(response.msg);
+                updateAttempts(response.attempts);
                 document.getElementById("restart").style.display = "block";
                 messages = document.getElementById("messages");
                 if (window.innerWidth <= 1007) {
@@ -251,6 +253,13 @@
         function addError(error) {
             const errorP = document.getElementById('error');
             errorP.innerText = `Erro:  ${error}`;
+        }
+
+        function updateAttempts(attempts) {
+            const attemptsInfo = document.getElementById('attemptsInfo');
+            if (attemptsInfo) {
+                attemptsInfo.innerText = `Tentativas: ${attempts}`;
+            }
         }
 
     </script>
