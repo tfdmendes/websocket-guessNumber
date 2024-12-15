@@ -6,12 +6,12 @@ app.use(express.static(__dirname));
 app.get("/", (req, res) => res.sendFile(__dirname + "/index.html"));
 // port that will host the page; And the HTML page has code that connects
 // to port 9090 (where the websocket is hosted)
-app.listen(9091, () => console.log("Listening on http port 9091")); 
+app.listen(80, () => console.log("Listening on http port 80")); 
 
 const websocketServer = require("websocket").server;
 const httpServer = http.createServer();
 // websocket traffic goes through 9090
-httpServer.listen(9090, () => console.log("Listening on port 9090"));
+httpServer.listen(9090, () => console.log("Listening on websocket port 9090"));
 
 // client dictionary: { clientId: { connection } }
 const clients = {};
@@ -66,7 +66,7 @@ wsServer.on("request", request => {
             // creating the secret number 
             games[gameId] = {
                 "id": gameId,
-                "secretNumber": Math.floor(Math.random() * 100) + 1,
+                "secretNumber": Math.floor(Math.random() * 200) + 1,
                 "clients": [{ clientId: clientId }]
             };
 
@@ -208,9 +208,13 @@ function broadCastMessage(messageObject, clientId) {
 }
 
 
-//* https://stackoverflow.com/posts/44996682/revisions
-function S4() {
-    return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-}
-const guid = () => (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+// https://stackoverflow.com/posts/44996682/revisions
+// function S4() {
+//     return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+// }
+// const guid = () => (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+
+// Simpler GUID
+const guid = () => Math.random().toString(36).substr(2, 8) + '-' + Math.random().toString(36).substr(2, 4);
+
 
